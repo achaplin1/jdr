@@ -42,15 +42,27 @@
     const choicesEl = document.getElementById("choices");
     
 async function fetchScene(choiceId = null) {
-  const response = await fetch("https://jdr-one.vercel.app/api/mj", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ choice: choiceId })
-  });
-  const data = await response.json();
-  renderScene(data);
-}
+  sceneEl.textContent = "Chargement...";
+  choicesEl.innerHTML = "";
 
+  try {
+    const response = await fetch("https://jdr-one.vercel.app/api/mj", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ choice: choiceId })
+    });
+
+    const data = await response.json();
+    renderScene(data);
+
+  } catch (err) {
+    console.error("Erreur MJ :", err);
+    renderScene({
+      scene: "Une erreur est survenue avec le MJ. Veuillez réessayer.",
+      choices: [{ id: "retry", label: "Réessayer" }]
+    });
+  }
+}
 
     function renderScene(data) {
       sceneEl.textContent = data.scene;

@@ -24,30 +24,20 @@ export default async function handler(req, res) {
         },
         {
           role: "user",
-          content: `Voici le choix sélectionné par le joueur : ${choice ?? "début de partie"}`
+          content: `Voici le choix du joueur : ${choice ?? "début de partie"}`
         }
       ],
       response_format: "json"
     });
 
     const message = completion.choices[0].message.content;
+    const json = typeof message === 'string' ? JSON.parse(message) : message;
 
-    let parsed;
-    try {
-      parsed = typeof message === "string" ? JSON.parse(message) : message;
-    } catch (parseError) {
-      console.error("❌ Erreur de parsing JSON GPT :", message);
-      return res.status(500).json({
-        scene: "Erreur MJ : la réponse de l'IA est mal formatée.",
-        choices: [{ id: "retry", label: "Réessayer" }]
-      });
-    }
-
-    res.status(200).json(parsed);
-  } catch (error) {
-    console.error("❌ Erreur serveur MJ :", error);
+    res.status(200).json(json);
+  } catch (err) {
+    console.error("Erreur MJ:", err);
     res.status(500).json({
-      scene: "Le MJ s'est évanoui dans un vortex de bugs.",
+      scene: "Erreur serveur. Le MJ s'est pris un critique.",
       choices: [{ id: "retry", label: "Réessayer" }]
     });
   }

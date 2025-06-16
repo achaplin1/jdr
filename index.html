@@ -40,29 +40,29 @@
   <script>
     const sceneEl = document.getElementById("scene");
     const choicesEl = document.getElementById("choices");
-    
-async function fetchScene(choiceId = null) {
-  sceneEl.textContent = "Chargement...";
-  choicesEl.innerHTML = "";
 
-  try {
-    const response = await fetch("https://jdr-one.vercel.app/api/mj", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ choice: choiceId })
-    });
+    async function fetchScene(choiceId = null) {
+      sceneEl.textContent = "Chargement...";
+      choicesEl.innerHTML = "";
 
-    const data = await response.json();
-    renderScene(data);
+      try {
+        const response = await fetch("/api/mj", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ choice: choiceId })
+        });
 
-  } catch (err) {
-    console.error("Erreur MJ :", err);
-    renderScene({
-      scene: "Une erreur est survenue avec le MJ. Veuillez réessayer.",
-      choices: [{ id: "retry", label: "Réessayer" }]
-    });
-  }
-}
+        const data = await response.json();
+        renderScene(data);
+
+      } catch (err) {
+        console.error("Erreur MJ :", err);
+        renderScene({
+          scene: "Le MJ s'est endormi... réessayez plus tard.",
+          choices: [{ id: "retry", label: "Réessayer" }]
+        });
+      }
+    }
 
     function renderScene(data) {
       sceneEl.textContent = data.scene;
@@ -76,8 +76,8 @@ async function fetchScene(choiceId = null) {
       });
     }
 
+    // Lancement du jeu
     fetchScene();
   </script>
 </body>
 </html>
- 

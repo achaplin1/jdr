@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>JDR Interactif</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a1a1a;
+      color: #fff;
+      padding: 20px;
+    }
+    .scene {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .choice-btn {
+      padding: 10px;
+      background-color: #333;
+      border: 1px solid #555;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .choice-btn:hover {
+      background-color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" id="scene">Chargement...</div>
+  <div class="choices" id="choices"></div>
+
+  <script>
+    const sceneEl = document.getElementById("scene");
+    const choicesEl = document.getElementById("choices");
+
+    async function fetchScene(choiceId = null) {
+      sceneEl.textContent = "Chargement...";
+      choicesEl.innerHTML = "";
+
+      try {
+        const response = await fetch("/api/mj", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ choice: choiceId })
+        });
+
+        const data = await response.json();
+        renderScene(data);
+
+      } catch (err) {
+        console.error("Erreur MJ :", err);
+        renderScene({
+          scene: "Le MJ s'est endormi... réessayez plus tard.",
+          choices: [{ id: "retry", label: "Réessayer" }]
+        });
+      }
+    }
+
+    function renderScene(data) {
+      sceneEl.textContent = data.scene;
+      choicesEl.innerHTML = "";
+      data.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.textContent = choice.label;
+        btn.onclick = () => fetchScene(choice.id);
+        choicesEl.appendChild(btn);
+      });
+    }
+
+    fetchScene();
+  </script>
+</body>
+</html>

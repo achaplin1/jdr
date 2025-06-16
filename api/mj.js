@@ -15,20 +15,13 @@ export default async function handler(req, res) {
   try {
     const { choice } = req.body;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "Tu es un MJ de jeu de rôle. Réponds uniquement en JSON avec les clés 'scene' (texte) et 'choices' (tableau avec { id, label })."
-        },
-        {
-          role: "user",
-          content: `Voici le choix sélectionné par le joueur : ${choice ?? "début de partie"}`
-        }
-      ],
-      response_format: "json"
-    });
+return res.status(200).json({
+  scene: "Bienvenue dans le test ! Que voulez-vous faire ?",
+  choices: [
+    { id: "avancer", label: "Avancer dans la grotte" },
+    { id: "fuir", label: "Fuir en hurlant" }
+  ]
+});
 
     const message = completion.choices[0].message.content;
 

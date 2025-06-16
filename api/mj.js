@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 
+// Ta clé collée ici (remplace-la par ta vraie clé)
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: "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" // ta clé ici
 });
 
 export default async function handler(req, res) {
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
       messages: [
         {
           role: "system",
-          content: "Tu es un MJ de jeu de rôle. Tu réponds uniquement en JSON avec les clés 'scene' (texte) et 'choices' (tableau d’objets avec 'id' et 'label'). Ne mets jamais de texte autour du JSON."
+          content: "Tu es un MJ de jeu de rôle. Réponds uniquement en JSON strict, avec : { \"scene\": string, \"choices\": [ { \"id\": string, \"label\": string } ] }. Ne renvoie jamais de texte en dehors de ce JSON."
         },
         {
           role: "user",
@@ -36,11 +37,10 @@ export default async function handler(req, res) {
     const json = typeof message === "string" ? JSON.parse(message) : message;
 
     res.status(200).json(json);
-
   } catch (error) {
     console.error("Erreur MJ :", error);
     res.status(500).json({
-      scene: "Le MJ est tombé dans un piège magique.",
+      scene: "Le MJ s'est pris un coup critique.",
       choices: [{ id: "retry", label: "Réessayer" }]
     });
   }

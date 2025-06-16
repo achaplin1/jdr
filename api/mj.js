@@ -1,43 +1,47 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
 export default async function handler(req, res) {
-  if (req.method === 'OPTIONS') {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
-
-  res.setHeader("Access-Control-Allow-Origin", "*");
 
   try {
     const { choice } = req.body;
 
-    const completion = await openai.chat.completions.create({
+    const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "Tu es un MJ de jeu de rôle. Réponds uniquement en JSON avec les clés 'scene' (texte) et 'choices' (tableau avec { id, label })."
+          content: "Tu es un maître du jeu de rôle. Tu renvoies toujours du JSON avec 'scene' (texte narratif) et 'choices' (liste d'objets avec 'id' et 'label'). Ne mets aucun texte en dehors du JSON."
         },
         {
           role: "user",
-          content: `Voici le choix du joueur : ${choice ?? "début de partie"}`
+          content: `Le joueur a choisi : ${choice ?? "début de partie"}`
         }
       ],
       response_format: "json"
     });
 
-    const message = completion.choices[0].message.content;
-    const json = typeof message === 'string' ? JSON.parse(message) : message;
+    const message = response.choices[0].message.content;
 
+    // Si GPT renvoie déjà un objet parsable
+    const json = typeof message === "string" ? JSON.parse(message) : message;
     res.status(200).json(json);
+
   } catch (err) {
     console.error("Erreur MJ:", err);
     res.status(500).json({
-      scene: "Erreur serveur. Le MJ s'est pris un critique.",
+      scene: "Le MJ a perdu connaissance. Veuillez réessayer.",
       choices: [{ id: "retry", label: "Réessayer" }]
     });
   }

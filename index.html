@@ -40,16 +40,17 @@
   <script>
     const sceneEl = document.getElementById("scene");
     const choicesEl = document.getElementById("choices");
+    
+async function fetchScene(choiceId = null) {
+  const response = await fetch("https://jdr-one.vercel.app/api/mj", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ choice: choiceId })
+  });
+  const data = await response.json();
+  renderScene(data);
+}
 
-    async function fetchScene(choiceId = null) {
-      const response = await fetch("https://jdr-one.vercel.app/api/mj", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ choice: choiceId, room: "test-room" })
-      });
-      const data = await response.json();
-      renderScene(data);
-    }
 
     function renderScene(data) {
       sceneEl.textContent = data.scene;

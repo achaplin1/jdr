@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: "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"
+  apiKey: process.env.OPENAI_API_KEY // sécurisée depuis Vercel
 });
 
 export default async function handler(req, res) {
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
-      response_format: "json", // force JSON
+      response_format: "json",
       messages: [
         {
           role: "system",
@@ -30,21 +30,13 @@ export default async function handler(req, res) {
     });
 
     const raw = completion.choices[0].message.content;
-
-    let json;
-    try {
-      json = typeof raw === "string" ? JSON.parse(raw) : raw;
-    } catch (e) {
-      console.error("❌ JSON.parse échoué :", raw);
-      throw new Error("Réponse GPT non parsable");
-    }
+    const json = typeof raw === "string" ? JSON.parse(raw) : raw;
 
     res.status(200).json(json);
-
   } catch (error) {
-    console.error("❌ Erreur MJ finale :", error);
+    console.error("❌ Erreur MJ :", error);
     res.status(500).json({
-      scene: "Erreur MJ : réponse impossible à traiter.",
+      scene: "Erreur MJ : il s'est évanoui dans une explosion magique.",
       choices: [{ id: "retry", label: "Réessayer" }]
     });
   }

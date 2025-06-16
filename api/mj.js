@@ -41,3 +41,4 @@ export default async function handler(req, res) {
     });
   }
 }
+console.log("🔐 Clé API présente ?", process.env.OPENAI_API_KEY ? "✅ OUI" : "❌ NON");

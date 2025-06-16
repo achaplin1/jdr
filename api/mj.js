@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       messages: [
         {
           role: "system",
-          content: "Tu es un MJ. Réponds uniquement en JSON avec { scene: string, choices: [{ id: string, label: string }] }."
+          content: "Tu es un MJ de jeu de rôle. Réponds uniquement en JSON brut (sans balises ```), avec la structure suivante : { \"scene\": string, \"choices\": [{ \"id\": string, \"label\": string }] }."
         },
         {
           role: "user",
@@ -29,12 +29,17 @@ export default async function handler(req, res) {
     });
 
     const raw = completion.choices[0].message.content;
-    const json = JSON.parse(raw);
+
+    // 🧹 Nettoyage si GPT entoure de balises markdown
+    const cleaned = raw.replace(/```json|```/g, "").trim();
+
+    const json = JSON.parse(cleaned);
     res.status(200).json(json);
+
   } catch (error) {
     console.error("❌ Erreur MJ :", error);
     res.status(500).json({
-      scene: "Le MJ est tombé dans un piège magique.",
+      scene: "Le MJ a reçu un coup critique (erreur serveur).",
       choices: [{ id: "retry", label: "Réessayer" }]
     });
   }
